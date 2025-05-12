@@ -24,12 +24,20 @@ switch to the opponentPlayer
 // put scores to zero
 // hide the dice
 
-const scores = [ 0 , 0 ]
-let currentScore = 0;
-// const highScore = 100;
-let activePlayer = 0;
-let score = 0;
 
+                                                     
+
+    function switchPlayer (){ // this was being repeated hence put it in a function which can be reused.
+        document.getElementById(`current--${activePlayer}`).textContent = 0
+        currentScore = 0; 
+        activePlayer = activePlayer === 0 ? 1 : 0 ;
+        player0El.classList.toggle('player--active');// toggles the class attribute
+        player1El.classList.toggle('player--active');
+    }
+
+
+const player0El = document.querySelector('.player--0');
+const player1El = document.querySelector('.player--1')
 
 // pointing/selecting the elements where the score is stored.
 const score0El = document.getElementById('score--0'); 
@@ -47,6 +55,36 @@ const btnRoll = document.querySelector('.btn--roll');
 const btnHold = document.querySelector('.btn--hold');
 
 
+let scores;
+let currentScore;
+let activePlayer;
+// state variable that holds the state of the game --->
+let playing;
+
+
+// starting conditions
+function init() {
+
+     scores = [ 0 , 0 ]// holds the score of both the players
+     currentScore = 0;
+     activePlayer = 0;
+     playing = true;// state variable that holds the state of the game 
+
+    player0El.classList.remove('player--winner');
+    player1El.classList.remove('player--winner');
+    player0El.classList.add('player--active');
+    player1El.classList.remove('player--active')
+
+    score0El.textContent = 0;
+    score1El.textContent = 0;
+     
+    current0El.textContent = 0;
+    current1El.textContent = 0;
+
+}
+init();
+
+
 //setting the initial values of the scored to be displayed as 0
 score0El.textContent = 0;
 score1El.textContent = 0;
@@ -54,8 +92,12 @@ score1El.textContent = 0;
 // hiding the dice: the diceEl points to the dice element and the class slector hidden adds the attribute display none to the element by using classList method to add the attribute od display : none 
 diceEl.classList.add('hidden')
 
+
+
 // Rolling duice functionality
 btnRoll.addEventListener('click' , function(){
+
+    if (playing){
 // generating a random dice roll.
 const dice = Math.trunc(Math.random() * 6) + 1;
 // Display the dice roll as a scroll.
@@ -67,13 +109,35 @@ if (dice !== 1){ // add the dice number to the current score.
     currentScore = currentScore + dice; // CurrentScore with every click will be current plus the new Score which will have the value of dice added to it.
     document.getElementById(`current--${activePlayer}`).textContent = currentScore // dynamically change the current active player.
 } else { // roll comes to 1 hence switch the player, Losing scenario for the player.
-    document.getElementById(`current--${activePlayer}`).textContent = 0
-    currentScore = 0; 
-    activePlayer = activePlayer === 0 ? 1 : 0 ;
-}
+    // switch player function invoked
+    switchPlayer();
+        }
+    }
 }) 
 
 
-btnHold.document.addEventListener('click', function(){
-document.getElementById(`score--${score}`).textContent = currentScore 
+btnHold.addEventListener('click', function(){
+        //1- Add current score to activer players's score
+        if (playing) {
+        scores[activePlayer] += currentScore // scores[1] =scores[1] + currentScore
+
+        document.getElementById(`score--${activePlayer}`).textContent = scores[activePlayer]
+
+        //2- check if score is greater/equal to 100 if yes current player wins,game finished 
+        if (scores[activePlayer] >= 20) {
+            // finish the game.
+            playing = false
+            diceEl.classList.add('hidden') // hides the dice as the player wins the game/gets 20 points
+            document.querySelector(`.player--${activePlayer}`).classList.add('player--winner')
+            document.querySelector(`.player--${activePlayer}`).classList.remove('player--active')
+        } else {
+        //  switch the player
+         switchPlayer();
+        }
+    }
 })
+
+
+// reset game 
+
+    btnNew.addEventListener('click', init)
